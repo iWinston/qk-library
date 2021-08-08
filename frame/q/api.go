@@ -90,7 +90,20 @@ func parseParamByTag(r *ghttp.Request, dtoType reflect.Type, dtoValue reflect.Va
 					g.Log("exception").Error(err)
 					JsonExit(r, 500, err.Error())
 				}
-				itemValue.Set(ctxFieldValue)
+				if len(arr) == 2 {
+					itemValue.Set(ctxFieldValue)
+				}
+				if len(arr) == 3 {
+					ctxFieldDeepName := arr[2]
+					ctxFieldValue = ctxFieldValue.Elem().FieldByName(ctxFieldDeepName)
+					if ctxFieldValue.Kind() == reflect.Invalid || ctxFieldValue.IsNil() {
+						err := fmt.Errorf("获取不到%s的值", ctxTag)
+						g.Log("exception").Error(err)
+						JsonExit(r, 500, err.Error())
+					}
+					itemValue.Set(ctxFieldValue)
+				}
+
 			}
 		}
 	}
