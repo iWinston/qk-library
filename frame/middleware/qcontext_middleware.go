@@ -15,6 +15,7 @@ func GenRequestContextMiddleware(DB *gorm.DB) func(r *ghttp.Request) {
 		requestCtx := &qmodel.ReqContext{
 			Request: r,
 			DB:      DB,
+			OrgDB:   DB,
 			Data:    make(g.Map),
 		}
 		qservice.ReqContext.Init(r, requestCtx)

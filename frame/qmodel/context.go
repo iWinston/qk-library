@@ -19,7 +19,9 @@ const (
 type ReqContext struct {
 	Request       *ghttp.Request // 当前Request对象
 	DB            *gorm.DB       // 未开启事务的DB
+	OrgDB         *gorm.DB       // 如果开始范围查询，则OrgTX保存未加范围的DB
 	TX            *gorm.DB       // 开启事务的DB
+	OrgTX         *gorm.DB       // 如果开始范围查询，则OrgTX保存未加范围的TX
 	Data          g.Map          // 自定KV变量，业务模块根据需要设置，不固定
 	Err           error          // 保存错误
 	ActionHistory ActionHistory

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gogf/gf/errors/gerror"
+	"github.com/gogf/gf/net/ghttp"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/iWinston/qk-library/frame/qmodel"
 	"github.com/iWinston/qk-library/qutil"
@@ -296,11 +297,11 @@ func Paginate(req interface{}) func(db *gorm.DB) *gorm.DB {
 }
 
 // MustFirstExit 如果查找失败，退出请求
-func MustFirstExit(ctx *qmodel.ReqContext, errorTip string, dest interface{}, conds ...interface{}) *gorm.DB {
-	result := ctx.TX.First(dest, conds...)
+func MustFirstExit(r *ghttp.Request, tx *gorm.DB, errorTip string, dest interface{}, conds ...interface{}) *gorm.DB {
+	result := tx.First(dest, conds...)
 	if err := result.Error; err != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			Response(ctx.Request, gerror.New(errorTip))
+			Response(r, gerror.New(errorTip))
 		}
 	}
 	return result
@@ -324,7 +325,7 @@ func MustCreateExit(ctx *qmodel.ReqContext, errorTip string, dest interface{}, c
 	if oldNum != 0 {
 		Response(ctx.Request, gerror.New(errorTip))
 	}
-	return ctx.TX.Create(dest)
+	return ctx.OrgTX.Create(dest)
 }
 
 // MustCreate 如果cond查找结果为0，则保存dest，否则panic
