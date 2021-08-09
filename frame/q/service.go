@@ -53,7 +53,8 @@ func Get(tx *gorm.DB, param interface{}, res interface{}) error {
 	}
 }
 
-func Post(tx *gorm.DB, m interface{}, param interface{}) (err error) {
+func Post(tx *gorm.DB, param interface{}) (err error) {
+	m := tx.Statement.Model
 	if err = gconv.Struct(param, m); err != nil {
 		return err
 	}
@@ -65,7 +66,8 @@ func Post(tx *gorm.DB, m interface{}, param interface{}) (err error) {
 	return
 }
 
-func Patch(tx *gorm.DB, m interface{}, param interface{}) (err error) {
+func Patch(tx *gorm.DB, param interface{}) (err error) {
+	m := tx.Statement.Model
 	GenSqlByParam(tx, param)
 	id := param.(qfield.IdParam).GetId()
 	if err = tx.Take(m, id).Error; err != nil {
@@ -83,7 +85,8 @@ func Patch(tx *gorm.DB, m interface{}, param interface{}) (err error) {
 	return
 }
 
-func Delete(tx *gorm.DB, m interface{}, param interface{}) (err error) {
+func Delete(tx *gorm.DB, param interface{}) (err error) {
+	m := tx.Statement.Model
 	GenSqlByParam(tx, param)
 	id := param.(qfield.IdParam).GetId()
 	if err = tx.Take(m, id).Error; err != nil {
