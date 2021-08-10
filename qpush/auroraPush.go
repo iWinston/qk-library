@@ -17,6 +17,9 @@ func getAuroraToken() string {
 }
 
 func AuroraPushByRIds(title string, registrationIds []string) *string {
+	if len(registrationIds) == 0 {
+		return nil
+	}
 	result := &AuroraPushResult{}
 	g.Client().
 		SetHeader("Authorization", "Basic "+getAuroraToken()).ContentJson().
@@ -25,10 +28,8 @@ func AuroraPushByRIds(title string, registrationIds []string) *string {
 			"audience": g.Map{
 				"registration_id": registrationIds,
 			},
-			"message": g.Map{
-				"msg_content":  title,
-				"content_type": "text",
-				"title":        "msg",
+			"notification": g.Map{
+				"alert": title,
 			},
 		}).
 		Scan(result)
