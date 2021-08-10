@@ -38,7 +38,6 @@ func GenSqlByRes(tx *gorm.DB, res interface{}) *gorm.DB {
 	for _, join := range resMeta.Joins {
 		genJoinByRelation(tx, join)
 	}
-	// resMeta.Selects = append(resMeta.Selects, "DISTINCT(cms_ad.id)")
 	tx.Statement.Selects = resMeta.Selects
 
 	return tx
