@@ -121,25 +121,27 @@ func FindWithPaginate(tx *gorm.DB, param interface{}, res interface{}) error {
 	if len(tx.Statement.Preloads) == 0 {
 		return tx.Find(res).Error
 	} else {
-		// 这里是为了防止select里不包含外键字段,所以select设置为空，Find启动智能select所有字段
-		arrType := reflect.SliceOf(reflect.TypeOf(tx.Statement.Model).Elem())
-		arr := reflect.New(arrType).Interface()
-		preloadTx := tx.Session(&gorm.Session{})
-		selects := preloadTx.Statement.Selects
-		preloadTx.Statement.Selects = nil
-		if err := preloadTx.Find(arr).Error; err != nil {
-			return err
-		}
-		if err := gconv.Structs(arr, res); err != nil {
-			panic(err)
-		}
-
 		// TODO 判断是否有select别名字段或者外键字段，当有的时候才select
-		tx.Statement.Selects = selects
+		preloads := tx.Statement.Preloads
 		tx.Statement.Preloads = nil
 		if err := tx.Find(res).Error; err != nil {
 			return err
 		}
+
+		// 这里是为了防止select里不包含外键字段,所以select设置为空，Find启动智能select所有字段
+		arrType := reflect.SliceOf(reflect.TypeOf(tx.Statement.Model).Elem())
+		arr := reflect.New(arrType).Interface()
+		preloadTx := tx.Session(&gorm.Session{})
+		preloadTx.Statement.Preloads = preloads
+		preloadTx.Statement.Selects = nil
+		if err := preloadTx.Find(arr).Error; err != nil {
+			return err
+		}
+
+		if err := gconv.Structs(arr, res); err != nil {
+			panic(err)
+		}
+
 		return nil
 	}
 }
