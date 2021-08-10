@@ -3,6 +3,8 @@ package qfield
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
+	"strings"
 )
 
 type Ids []uint
@@ -26,4 +28,13 @@ func (p *Ids) Scan(data interface{}) error {
 // 转回原始类型
 func (p *Ids) GetSlice() []uint {
 	return []uint(*p)
+}
+
+// 转回原始类型
+func (p *Ids) Str() string {
+	strArr := []string{}
+	for _, v := range *p {
+		strArr = append(strArr, fmt.Sprintf("%d", v))
+	}
+	return strings.Join(strArr, ",")
 }

@@ -20,13 +20,20 @@ func AuroraPushByRIds(title string, registrationIds []string) *string {
 	result := &AuroraPushResult{}
 	g.Client().
 		SetHeader("Authorization", "Basic "+getAuroraToken()).ContentJson().
-		PostVar("https://api.jpush.cn/v3/push", g.Map{"platform": "all", "audience": "all", "message": g.Map{
-			"msg_content":  title,
-			"content_type": "text",
-			"title":        "msg",
-		}}).Scan(result)
+		PostVar("https://api.jpush.cn/v3/push", g.Map{
+			"platform": "all",
+			"audience": g.Map{
+				"registration_id": registrationIds,
+			},
+			"message": g.Map{
+				"msg_content":  title,
+				"content_type": "text",
+				"title":        "msg",
+			},
+		}).
+		Scan(result)
 	if result.SendNo != "0" {
-		panic(fmt.Errorf("极光推送失败，错误码：%v，标题：%v，用户标识：%v", result.SendNo, title, registrationIds))
+		panic(fmt.Errorf("极光推送失败，错误码：%v，标题：%v，用户标识：%v", result.Error, title, registrationIds))
 	} else {
 		return qtype.Str(result.MsgId)
 	}
@@ -34,6 +41,7 @@ func AuroraPushByRIds(title string, registrationIds []string) *string {
 }
 
 type AuroraPushResult struct {
-	SendNo string
+	SendNo string `json:"sendno"`
 	MsgId  string `json:"msg_id"`
+	Error  g.Map  `json:"error"`
 }

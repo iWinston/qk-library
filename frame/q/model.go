@@ -36,7 +36,7 @@ func GenSqlByRes(tx *gorm.DB, res interface{}) *gorm.DB {
 		tx.Preload(preload)
 	}
 	for _, join := range resMeta.Joins {
-		genJoinByRelation(tx, join)
+		JoinByRelation(tx, join)
 	}
 	tx.Statement.Selects = resMeta.Selects
 
@@ -56,7 +56,7 @@ func GenSqlByParam(tx *gorm.DB, param interface{}) *gorm.DB {
 		tx.Order(order)
 	}
 	for _, join := range paramMeta.Joins {
-		genJoinByRelation(tx, join)
+		JoinByRelation(tx, join)
 	}
 	return tx
 }
@@ -230,7 +230,7 @@ func getColumnNameAndRelation(tx *gorm.DB, fieldName string, tag string) (column
 	return
 }
 
-func genJoinByRelation(tx *gorm.DB, relation string) {
+func JoinByRelation(tx *gorm.DB, relation string) {
 	isContains := false
 	for _, join := range tx.Statement.Joins {
 		if join.Name == relation || strings.Contains(join.Name, relation+"` on") || strings.Contains(join.Name, relation+"` ON") || strings.Contains(join.Name, relation+" on") || strings.Contains(join.Name, relation+" ON") {
