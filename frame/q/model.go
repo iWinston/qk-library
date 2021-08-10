@@ -193,6 +193,8 @@ func setSelectMeta(resMeta *meta, item reflect.StructField, tx *gorm.DB) {
 func genCondition(sql *gorm.DB, name, operator string, itemValue interface{}) {
 	switch operator {
 	case "_":
+	case "!=":
+		sql.Where(name+" != ?", itemValue)
 	case "in":
 		sql.Where(name+" in ?", itemValue)
 	case "=":
