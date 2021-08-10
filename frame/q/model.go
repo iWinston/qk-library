@@ -162,7 +162,7 @@ func setOrderMeta(resMeta *meta, item reflect.StructField, tx *gorm.DB) {
 				}
 			}
 		}
-		resMeta.Orders = append(resMeta.Preloads, orderTag)
+		resMeta.Orders = append(resMeta.Orders, orderTag)
 	}
 }
 
