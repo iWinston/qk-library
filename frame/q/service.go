@@ -30,23 +30,21 @@ func Get(tx *gorm.DB, param interface{}, res interface{}) error {
 	if len(tx.Statement.Preloads) == 0 {
 		return tx.Take(res, id).Error
 	} else {
+		// TODO 判断是否有select别名字段或者外键字段，当有的时候才select
+		preloads := tx.Statement.Preloads
+		tx.Statement.Preloads = nil
+		if err := tx.Where(id).Take(res).Error; err != nil {
+			return err
+		}
+
 		// 这里是为了防止select里不包含外键字段,所以select设置为空，Take启动智能select所有字段
 		preloadTx := tx.Session(&gorm.Session{})
-		preloadTx.Statement.Selects = []string{}
+		preloadTx.Statement.Preloads = preloads
+		preloadTx.Statement.Selects = nil
 		if err := preloadTx.Take(preloadTx.Statement.Model, id).Error; err != nil {
 			return err
 		}
 		if err := gconv.StructDeep(preloadTx.Statement.Model, res); err != nil {
-			panic(err)
-		}
-
-		// TODO 判断是否有select别名字段或者外键字段，当有的时候才select
-		result := make(map[string]interface{})
-		if err := tx.Where(id).Scan(&result).Error; err != nil {
-			return err
-		}
-
-		if err := gconv.StructDeep(result, res); err != nil {
 			panic(err)
 		}
 		return nil
@@ -122,24 +120,24 @@ func FindWithPaginate(tx *gorm.DB, param interface{}, res interface{}) error {
 	if len(tx.Statement.Preloads) == 0 {
 		return tx.Find(res).Error
 	} else {
+		// TODO 判断是否有select别名字段或者外键字段，当有的时候才select
+		preloads := tx.Statement.Preloads
+		tx.Statement.Preloads = nil
+		if err := tx.Find(res).Error; err != nil {
+			return err
+		}
+
 		// 这里是为了防止select里不包含外键字段,所以select设置为空，Find启动智能select所有字段
 		arrType := reflect.SliceOf(reflect.TypeOf(tx.Statement.Model).Elem())
 		arr := reflect.New(arrType).Interface()
 		preloadTx := tx.Session(&gorm.Session{})
-		preloadTx.Statement.Selects = []string{}
+		preloadTx.Statement.Preloads = preloads
+		preloadTx.Statement.Selects = nil
+
 		if err := preloadTx.Find(arr).Error; err != nil {
 			return err
 		}
 		if err := gconv.StructsDeep(arr, res); err != nil {
-			panic(err)
-		}
-
-		// TODO 判断是否有select别名字段或者外键字段，当有的时候才select
-		var results []map[string]interface{}
-		if err := tx.Scan(&results).Error; err != nil {
-			return err
-		}
-		if err := gconv.StructsDeep(results, res); err != nil {
 			panic(err)
 		}
 		return nil
