@@ -8,9 +8,11 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/360EntSecGroup-Skylar/excelize"
 	"github.com/go-sql-driver/mysql"
 	"github.com/iWinston/qk-library/frame/qservice"
 	"github.com/iWinston/qk-library/qutil"
+	"github.com/iWinston/qk-library/qxlsx"
 	"gorm.io/gorm"
 
 	"github.com/gogf/gf/net/ghttp"
@@ -182,4 +184,21 @@ func JsonExit(r *ghttp.Request, code int, msg string, data ...interface{}) {
 	HttpStatus(r, code)
 	Json(r, code, msg, data...)
 	r.Exit()
+}
+
+func WriteXlsxExit(r *ghttp.Request, f *excelize.File) {
+	r.Response.Header().Set("Content-Disposition", "attachment; filename=file.xls")
+	f.Write(r.Response.Writer)
+	r.Exit()
+}
+
+func ResponseWithXlsx(r *ghttp.Request, err error, res interface{}) {
+	if err != nil {
+		Response(r, err)
+	}
+	f, err := qxlsx.Xlsx.Write(res)
+	if err != nil {
+		Response(r, err)
+	}
+	WriteXlsxExit(r, f)
 }
