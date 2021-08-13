@@ -36,6 +36,12 @@ func SliceToMap(s interface{}) (m []interface{}) {
 	return
 }
 
+func SliceToMaps(s interface{}) (m g.List) {
+	j, _ := json.Marshal(&s)
+	_ = json.Unmarshal(j, &m)
+	return
+}
+
 func GetDeepType(typ reflect.Type) reflect.Type {
 	resKind := typ.Kind()
 	if resKind == reflect.Array || resKind == reflect.Slice || resKind == reflect.Ptr {
