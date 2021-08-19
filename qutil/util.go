@@ -69,3 +69,14 @@ func JoinNotEmptyStr(strArr []string, sep string) string {
 	}
 	return strings.Join(newArr, sep)
 }
+
+func IsInUint(a []uint, item uint) bool {
+	hasId := false
+	for i := range a {
+		if a[i] == item {
+			hasId = true
+			break
+		}
+	}
+	return hasId
+}
